@@ -1,0 +1,111 @@
+AWS Cloud Computing Lab Experiments (Week 1 - Week 6)
+WEEK 1: EC2 Instance Creation and Secure Connectivity
+
+Create Linux EC2 Instance:
+1. Login to AWS Console → EC2 → Launch Instance
+2. Select Ubuntu/Amazon Linux AMI
+3. Choose t2.micro instance
+4. Create key pair (.pem)
+5. Allow SSH (22) in Security Group
+6. Launch Instance
+
+SSH Connection:
+ssh -i key.pem ubuntu@<Public-IP>
+whoami
+
+PuTTY Connection:
+.pem → PuTTYgen → .ppk
+PuTTY → Connection → SSH → Auth → Load .ppk → Connect
+
+CloudShell Connection:
+Upload key → chmod 400 key.pem
+ssh -i key.pem ubuntu@<Public-IP>
+
+Windows EC2 RDP:
+Allow Port 3389
+Get Password → Upload .pem
+mstsc → Login Administrator
+
+WEEK 2: EC2 & EBS Volume Management
+
+Create EBS Volume:
+EC2 → Volumes → Create Volume
+Type: gp3 | Size: 10GB | Same AZ
+
+Attach Volume:
+Actions → Attach → /dev/xvdf
+
+Commands:
+lsblk
+sudo fdisk /dev/xvdf
+sudo partprobe
+sudo mkfs.xfs /dev/xvdf1
+sudo mkdir /mnt/archana
+sudo mount /dev/xvdf1 /mnt/archana
+sudo blkid
+sudo nano /etc/fstab
+UUID=<UUID> /mnt/archana xfs defaults,nofail 0 0
+sudo mount -a
+sudo reboot
+
+Snapshot:
+Create Snapshot → Copy Snapshot → Create Volume → Attach
+
+WEEK 3: Elastic File System (EFS)
+
+Launch Two EC2 Instances
+Create EFS → Configure Mount Targets
+
+Install utilities:
+sudo yum install -y amazon-efs-utils
+mkdir efs
+
+Mount:
+sudo mount -t efs <EFS-DNS>:/ efs
+
+Verify shared storage between instances.
+
+WEEK 4: Amazon S3
+
+Create Bucket → Disable Block Public Access
+Upload Object → Enable ACL Public Read
+
+Versioning:
+Properties → Enable Versioning
+
+Cross Region Replication:
+Enable versioning on both buckets
+Create replication rule
+
+Static Website Hosting:
+Enable hosting
+index.html
+error.html
+Copy website endpoint URL
+
+WEEK 5: VPC Creation and EC2 Connectivity
+
+Create VPC: 10.0.0.0/16
+Create Public & Private Subnets
+Create Internet Gateway
+Attach IGW
+Create Route Tables
+Public Route → 0.0.0.0/0 → IGW
+Enable Auto Public IP
+Launch EC2 in Public & Private Subnets
+
+WEEK 6: VPC Using Bastion Host & NAT Gateway
+
+Create Bastion Server (Public Subnet)
+Create DB Server (Private Subnet)
+
+Copy key:
+scp -i bastion.pem dbserver.pem ubuntu@<Bastion-IP>:/home/ubuntu/
+
+SSH:
+ssh -i bastion.pem ubuntu@<Bastion-IP>
+ssh -i dbserver.pem ubuntu@10.0.2.x
+
+NAT Gateway:
+Create NAT in Public Subnet
+Private Route → 0.0.0.0/0 → NAT Gateway
